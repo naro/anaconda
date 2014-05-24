@@ -70,7 +70,7 @@ class BackgroundLinter(sublime_plugin.EventListener):
         if (check_linting(view, ONLY_PYTHON)
                 and check_linting_behaviour(view, ['always', 'load-save'])):
             if 'Python' in view.settings().get('syntax'):
-                    run_linter(view)
+                run_linter(view)
         else:
             self._erase_marks_if_no_linting(view)
 

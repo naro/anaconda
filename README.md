@@ -59,7 +59,7 @@ Go to your sublime text 3 packages directory and clone the repo:
 Anaconda autocompletion
 -----------------------
 
-Goto and Find Usages implementations are strongly inspired in SublimeJEDI ones, SublimeJEDI is [GNU LGPL v3](http://www.gnu.org/licenses/lgpl.txt) licensed, you can read it online.
+Anaconda autocompletion work out of the box but it can be configured with several options.
 
 #### Python interpreter settings
 
@@ -90,6 +90,22 @@ You can add additional python extra paths that should be used for autocompletion
             ]
         }
     }
+
+Virtualenv environment variables
+--------------------------------
+
+If you are using a virtualenv for your `python_interpreter` and you start your Sublime Text 3 from the command line (to inherit environment variables) you can use the variable `$VIRTUAL_ENV` in your `python_interpreter` setting, for example:
+
+    {
+        // ...
+
+        "settings": {
+            "python_interpreter": "$VIRTUAL_ENV/bin/python"
+        }
+    }
+
+**note**: if you use the `$VIRTUAL_ENV` variable in your `python_interpreter` but it is missing in the `os.environ` anaconda will fallback to `python`.
+
 
 #### Environment hook files
 
@@ -177,6 +193,9 @@ Anaconda supports the [AutoPEP8](https://github.com/hhatto/autopep8) tool and it
 Anaconda can fix the following [PEP8 errors](https://github.com/DamnWidget/anaconda/wiki/PEP8-autoformat-error-list)
 
 Please, take a look at the configuration file to get a list of available options.
+
+* Shortcut: Linux `super+r`, Mac OS X and Windows `ctrl+alt+r`
+* Context Menu: `Anaconda > Autoformat PEP8 Errors`
 
 #### Autoimport undefined names
 

@@ -76,9 +76,11 @@ class BaseWorker(object):
 
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(0.5)
+            s.settimeout(0.05)
             s.connect((self.hostaddr, self.available_port))
             s.close()
+        except socket.timeout:
+            return False
         except socket.error as error:
             if error.errno == errno.ECONNREFUSED:
                 return False
@@ -200,6 +202,19 @@ class LocalWorker(BaseWorker):
             view = sublime.active_window().active_view()
             python = get_settings(view, 'python_interpreter', 'python')
             python = os.path.expanduser(python)
+            if '$VIRTUAL_ENV' in python:
+                if 'VIRTUAL_ENV' in os.environ:
+                    python = python.replace(
+                        '$VIRTUAL_ENV', os.environ.get('VIRTUAL_ENV'))
+                else:
+                    print(
+                        'WARNING: your anaconda configured python interpreter '
+                        'is {} but there is no $VIRTUAL_ENV key in your '
+                        'environment, fallin back to `python`.'.format(
+                            get_settings(view, 'python_interpreter', 'python')
+                        )
+                    )
+                    python = 'python'
         except:
             python = 'python'
 

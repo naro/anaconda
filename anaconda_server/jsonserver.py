@@ -33,7 +33,7 @@ from linting.anaconda_mccabe import AnacondaMcCabe
 from linting.anaconda_pep257 import PEP257 as AnacondaPep257
 from commands import (
     Doc, Lint, Goto, Rename, PyLint, FindUsages, AutoComplete,
-    CompleteParameters, McCabe, PEP257
+    CompleteParameters, McCabe, PEP257, AutoPep8
 )
 
 try:
@@ -109,6 +109,8 @@ class JSONHandler(asynchat.async_chat):
                 self.handle_lint_command(method, uid, vid)
             elif 'refactor' in method:
                 self.handle_refactor_command(method, uid)
+            elif 'autoformat' in method:
+                self.handle_common_command(method, uid, vid)
             else:
                 self.handle_jedi_command(method, uid)
         else:
@@ -139,6 +141,12 @@ class JSONHandler(asynchat.async_chat):
         self.data['script'] = script
         getattr(self, method.split('_')[1])(uid, **self.data)
 
+    def handle_common_command(self, method, uid, vid):
+        """Handle a non Jedi/Linting command
+        """
+
+        self.autoformat(uid, vid, **self.data)
+
     def handle_jedi_command(self, method, uid):
         """Handle jedi related commands
         """
@@ -162,12 +170,13 @@ class JSONHandler(asynchat.async_chat):
             source, int(line), int(offset), filename, encoding
         )
 
-    def run_linter_mccabe(self, uid, code, threshold, filename):
+    def run_linter_mccabe(self, uid, vid, code, threshold, filename):
         """Return the McCabe code comlexity errors
         """
 
         McCabe(
-            self.return_back, uid, AnacondaMcCabe, code, threshold, filename
+            self.return_back, uid, vid, AnacondaMcCabe,
+            code, threshold, filename
         )
 
     def run_linter(self, uid, vid, settings, code, filename):
@@ -220,7 +229,7 @@ class JSONHandler(asynchat.async_chat):
             """
 
             callback = partial(merge_pylint_and_pep8, result)
-            Lint(callback, uid, linter, settings, code, filename)
+            Lint(callback, uid, vid, linter, settings, code, filename)
 
         if PYLINT_AVAILABLE:
             rcfile = settings.get('pylint_rcfile', False)
@@ -268,6 +277,11 @@ class JSONHandler(asynchat.async_chat):
         """Call doc
         """
         Doc(self.return_back, uid, script)
+
+    def autoformat(self, uid, vid, code, settings):
+        """Call autoformat
+        """
+        AutoPep8(self.return_back, uid, vid, code, settings)
 
 
 class JSONServer(asyncore.dispatcher):

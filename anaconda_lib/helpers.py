@@ -25,7 +25,7 @@ def check_linting(view, mask):
     """Check common linting constraints
     """
 
-    if mask & ONLY_PYTHON and not is_python(view):
+    if mask & ONLY_PYTHON and not is_python(view, ignore_comments=True):
         return False
 
     if mask & NOT_SCRATCH and view.is_scratch():
@@ -55,7 +55,7 @@ def is_python(view, ignore_comments=False):
 
     # disable linting in SublimeREPL
     if view.settings().get('repl', False):
-        return
+        return False
 
     try:
         location = view.sel()[0].begin()
@@ -196,3 +196,12 @@ def get_view(window, vid):
         if view.id() == vid:
             return view
 
+
+def get_window_view(vid):
+    """Look for the given vid in all the opened windows
+    """
+
+    for window in sublime.windows():
+        view = get_view(window, vid)
+        if view is not None:
+            return view
